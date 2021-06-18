@@ -37,8 +37,3 @@ cap.release()
 
 
 
-#volume.SetMasterVolumeLevel(-20.0, None)
-
-
-print(volume.GetMasterVolumeLevel())
-print(volume.GetVolumeRange())
