@@ -5,13 +5,14 @@ from detecting_hands import DetectHand
 import cv2
 import mediapipe as mp
 import math
+import numpy
 
 #setting up pycaw
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(
 IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
-print(volume.GetVolumeRange())
+
 #---------------------------------------------------------------------
 
 cap = cv2.VideoCapture(0)
@@ -20,13 +21,10 @@ while(cap.isOpened()):
     success, frame = cap.read()
     image = detector.detect_hands(frame, draw = 0)
     length = detector.get_coordinates(image, draw = 1)
-    if(length>120):
-        volume.SetMasterVolumeLevel(0, None)
-    if (length < 54.75 and length >=0):
-        volume.SetMasterVolumeLevel(-65.25, None)
-    if(length >= 54.75 and length <= 120.0):
-        volume.SetMasterVolumeLevel(length-120, None)
-    print(volume.GetMasterVolumeLevel())
+    vol = numpy.interp(length, [25, 150], [-65.25, 0])
+    cv2.rectangle(image, (20, 40), (30, 105), (0,255, 0), 1)
+    cv2.rectangle(image, (20, int(40 - vol)), (30, 105), (0, 255, 0), -1)
+    volume.SetMasterVolumeLevel(float(vol), None)
     cv2.imshow("hands", image)
     if cv2.waitKey(5) & 0xFF == 27:
         break

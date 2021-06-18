@@ -18,7 +18,7 @@ class DetectHand:
                                                             min_tracking_confidence=self.min_tracking_confidence
                                                             )
        
-        
+        self.line_length = -1
     def detect_hands(self,image, draw = 0):
             
             image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
@@ -37,7 +37,7 @@ class DetectHand:
                         cv2.putText(image, f'fps : {int(fps)}', (30,30), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 0 , 0), 2)'''
             return image
     def get_coordinates(self,image, hand = 0, draw = 0, point1 = 4, point2 = 8):
-        line_length = -1;
+        
         h, w, n = image.shape
         coordinates = list()
         if self.result.multi_hand_landmarks:
@@ -49,14 +49,15 @@ class DetectHand:
             coordinate_2 = (coordinates[point2][1], coordinates[point2][2])
             cx           = (coordinate_1[0] + coordinate_2[0])//2
             cy           = (coordinate_1[1] + coordinate_2[1])//2
-            line_length = math.sqrt( (coordinate_2[1] - coordinate_1[1])**2 + (coordinate_2[0] - coordinate_1[0])**2 )
+            self.line_length = math.sqrt( (coordinate_2[1] - coordinate_1[1])**2 + (coordinate_2[0] - coordinate_1[0])**2 )
             cv2.circle(image, coordinate_1,8, (255, 0, 0), -1)
             cv2.circle(image, coordinate_2,8, (255, 0, 0), -1)
-            cv2.circle(image, (cx, cy),8, (255, 0, 0), -1)
             cv2.line(  image, coordinate_1, coordinate_2, (255, 0, 255), 2)
-            if(line_length < 80):
+            if(self.line_length < 80):
                 cv2.circle(image, (cx, cy), 8, (0, 255, 0), -1)
-        return line_length
+            if(self.line_length > 80):
+                cv2.circle(image, (cx, cy), 8, (255, 2, 0), -1)
+        return self.line_length
 
 
 
